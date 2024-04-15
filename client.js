@@ -106,10 +106,41 @@ async function main(){
     //Exercício Soma Valores
     let objeto1 = exercises['soma-valores'].entrada.objeto;
     let contagem = somaValores(objeto1);
-    console.log(soma);
+    console.log(contagem);
     axios
     .post("https://tecweb-js.insper-comp.com.br/exercicio/soma-valores", {'resposta': contagem,}, config2)
     .then((response) => console.log(response.data));
+
+    //Exercício N-ésimo Primo
+
+    //Exercício Maior Prefixo Comum
+
+    //Exercício Soma Segundo Maior e Menor Números
+    let lista = exercises['soma-segundo-maior-e-menor-numeros'].entrada.numeros;
+    let somaSec = somaSegundoMaiorEMenorNumeros(lista);
+    console.log(somaSec);
+    axios
+    .post("https://tecweb-js.insper-comp.com.br/exercicio/soma-segundo-maior-e-menor-numeros", {'resposta': somaSec}, config2)
+    .then((response) => console.log(response.data));
+
+    //Exercício Conta Palíndromos
+    let lista_palavras = exercises['conta-palindromos'].entrada.palavras;
+    let contagem_palindromos = contaPalindromos(lista_palavras);
+    console.log(contagem_palindromos);
+    axios
+    .post("https://tecweb-js.insper-comp.com.br/exercicio/conta-palindromos", {'resposta': contagem_palindromos}, config2)
+    .then((response) => console.log(response.data));
+
+    //Exercício Soma de Strings de Ints
+    let listaints = exercises['soma-de-strings-de-ints'].entrada.strings;
+    let somaInts = somaDeStringsDeInts(listaints);
+    console.log(somaInts);
+    axios
+    .post("https://tecweb-js.insper-comp.com.br/exercicio/soma-de-strings-de-ints", {'resposta': somaInts}, config2)
+    .then((response) => console.log(response.data));
+
+    //Exercício Soma com Requisições
+
 
 }
 
@@ -156,4 +187,39 @@ const somaValores = function(objeto){
         somaTotal += objeto[chave];
         }
     return somaTotal;
-}   
+}
+
+// const nEsimoPrimo = function(n) {--------------------------------------------------------------
+
+// }
+
+// const maiorPrefixoComum = function(lista_strings){--------------------------------------------------------------
+
+// }
+
+const somaSegundoMaiorEMenorNumeros = function(lista){
+    lista.sort(function(a, b){return a - b});
+    return lista[1] + lista[lista.length - 2];
+}
+
+const contaPalindromos = function(lista_palavras){
+    let contagem = 0;
+    for (let palavra of lista_palavras){
+        if (palavra === inverteString(palavra)){
+            contagem += 1;
+        }
+    }
+    return contagem;
+}
+
+const somaDeStringsDeInts = function(lista){
+    return lista.map(Number).reduce((a, b) => a + b);
+}
+
+// const somaComRequisicoes = function (array_endpoints){--------------------------------------------------------------
+    
+// }
+
+// const cacaAoTesouro = function (url){--------------------------------------------------------------
+
+// }
