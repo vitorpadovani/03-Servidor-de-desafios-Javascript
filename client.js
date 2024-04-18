@@ -29,10 +29,11 @@ async function get_exercises(token){
 
 
 
+
 async function main(){
     let token = await get_token();
     let exercises = await get_exercises(token);
-    console.log(exercises);
+    console.log(exercises["caca-ao-tesouro"]);
     const config2 = {
         headers: {
             "Content-Type": "application/json",
@@ -66,7 +67,15 @@ async function main(){
     .post("https://tecweb-js.insper-comp.com.br/exercicio/nome-do-usuario", {'resposta': nome}, config2)
     .then((response) => console.log(response.data));
 
-    //Exercício Jaca Wars
+    // Exercício Jaca Wars
+    let velo = exercises['jaca-wars'].entrada.v;
+    let theta = exercises['jaca-wars'].entrada.theta;
+    let resultado = jacaWars(velo, theta);
+    console.log(resultado);
+    axios
+    .post("https://tecweb-js.insper-comp.com.br/exercicio/jaca-wars", {'resposta': resultado}, config2)
+    .then((response) => console.log(response.data));
+    
 
     //Exercício Ano Bissexto
     let year = exercises['ano-bissexto'].entrada.ano;
@@ -112,8 +121,21 @@ async function main(){
     .then((response) => console.log(response.data));
 
     //Exercício N-ésimo Primo
+    let n = exercises['n-esimo-primo'].entrada.n;
+    let primo = nEsimoPrimo(n);
+    console.log(primo);
+    axios
+    .post("https://tecweb-js.insper-comp.com.br/exercicio/n-esimo-primo", {'resposta': primo}, config2)
+    .then((response) => console.log(response.data));
 
     //Exercício Maior Prefixo Comum
+    let lista_strings = exercises['maior-prefixo-comum'].entrada.strings;
+    let maiorPrefixo = await maiorPrefixoComum(lista_strings);
+    console.log(maiorPrefixo);
+    axios
+    .post("https://tecweb-js.insper-comp.com.br/exercicio/maior-prefixo-comum", {'resposta': maiorPrefixo}, config2)
+    .then((response) => console.log(response.data));
+
 
     //Exercício Soma Segundo Maior e Menor Números
     let lista = exercises['soma-segundo-maior-e-menor-numeros'].entrada.numeros;
@@ -140,6 +162,19 @@ async function main(){
     .then((response) => console.log(response.data));
 
     //Exercício Soma com Requisições
+    let lista_endpoints = exercises['soma-com-requisicoes'].entrada.endpoints;
+    let somaReq = await somaComRequisicoes(lista_endpoints, token);
+    axios
+    .post("https://tecweb-js.insper-comp.com.br/exercicio/soma-com-requisicoes", {'resposta': somaReq}, config2)
+    .then((response) => console.log(response.data));
+
+    // Exercício Caça ao Tesouro
+    let url = exercises['caca-ao-tesouro'].entrada.inicio;
+    let tesouro = await cacaAoTesouro(url, token);
+    console.log("Tesouro:", tesouro);
+    axios
+    .post("https://tecweb-js.insper-comp.com.br/exercicio/caca-ao-tesouro", {'resposta': tesouro}, config2)
+    .then((response) => console.log(response.data));
 
 
 }
@@ -159,9 +194,20 @@ const nomeUsuario = function(email){
     return nome;
 }
 
-// const jacaWars = function(jaca1, jaca2){ ------------------------------------------------------
-
-// }
+const jacaWars = function(v, theta){
+    let g = 9.8;
+        theta = theta * Math.PI / 180;
+    let d = (v**2) * Math.sin(2*theta) / g;
+    if (d>=98 && d <= 102){
+        return 0;
+    }
+    else if (d > 102){
+        return 1;
+    }
+    else {
+        return -1;
+    }
+}
 
 const anoBissexto = function(ano){
     return (ano % 4 === 0 && ano % 100 !== 0) || (ano % 400 === 0);
@@ -189,13 +235,56 @@ const somaValores = function(objeto){
     return somaTotal;
 }
 
-// const nEsimoPrimo = function(n) {--------------------------------------------------------------
+const isPrime = function(num) {
+    if (num < 2) {
+        return false;
+    }
+    for (let i = 2; i <= Math.sqrt(num); i++) {
+        if (num % i === 0) {
+            return false;
+        }
+    }
+    return true;
+}
 
-// }
+const nEsimoPrimo = function(n) {
+    if (n === 1) return 2;
+    
+    let count = 1;
+    let num = 3;
+    
+    while (count < n) {
+        if (isPrime(num)) {
+            count++;
+            if (count === n) {
+                return num;
+            }
+        }
+        num += 2;
+    }
+    
+    return null;
+}
 
-// const maiorPrefixoComum = function(lista_strings){--------------------------------------------------------------
 
-// }
+
+const maiorPrefixoComum = async function(strings){
+    let maior = "";
+    for (let i = 0; i < strings.length - 1; i++){
+        for (let j = i + 1; j < strings.length; j++){
+            let prefixo = "";
+            let k = 0;
+            while (k < strings[i].length && k < strings[j].length && strings[i][k] === strings[j][k]){
+                prefixo += strings[i][k];
+                k++;
+            }
+            if (prefixo.length > maior.length){
+                maior = prefixo;
+            }
+        }
+    }
+    return maior;
+}
 
 const somaSegundoMaiorEMenorNumeros = function(lista){
     lista.sort(function(a, b){return a - b});
@@ -216,10 +305,46 @@ const somaDeStringsDeInts = function(lista){
     return lista.map(Number).reduce((a, b) => a + b);
 }
 
-// const somaComRequisicoes = function (array_endpoints){--------------------------------------------------------------
-    
-// }
+const somaComRequisicoes = async function(lista_endpoints, token){
+    const config2 = {
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": `Bearer ${token}`
+        }
+    }
+    let soma = 0;
+    for (let endpoint of lista_endpoints){
+        let requisicao = await axios
+        .get(endpoint, config2)
+        .then ((response) => {
+            return response.data;
+        });
+        soma += requisicao;
+    }
+    console.log(soma);
+    return soma;
+}
 
-// const cacaAoTesouro = function (url){--------------------------------------------------------------
-
-// }
+const cacaAoTesouro = async function (url, token){
+    const config2 = {
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": `Bearer ${token}`
+        }
+    }
+    requisicao = await axios
+    .get(url, config2)
+    .then((response) => {
+        return response.data;
+    })
+    while (typeof requisicao !== 'number'){
+        requisicao = await axios
+        .get(requisicao, config2)
+        .then((response) => {
+            return response.data;
+        })
+    }
+    return requisicao;
+}
